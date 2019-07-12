@@ -1,13 +1,11 @@
 package com.cold.blade.service;
 
-import org.elasticsearch.action.DocWriteResponse.Result;
-import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cold.blade.BaseTest;
-import com.cold.blade.indexes.IndexType;
 import com.cold.blade.indexes.Indexes;
 
 /**
@@ -18,13 +16,23 @@ public class IndexServiceTest extends BaseTest {
     @Autowired
     private IndexService indexService;
 
+    private CreateIndexResponse response;
+
+    @Override
+    public void setUp() {
+        super.setUp();
+        response = indexService.createIndex(Indexes.EMPLOYEE);
+    }
+
     @Test
     public void testCreateIndex() {
+        Assert.assertTrue(response.isShardsAcked());
+        Assert.assertEquals(Indexes.EMPLOYEE, response.index());
+    }
 
-        IndexResponse response = indexService.createIndex(Indexes.EMPLOYEE, IndexType.PROGRAMMER);
-
-        Assert.assertEquals(Result.CREATED, response.getResult());
-        Assert.assertEquals(Indexes.EMPLOYEE, response.getIndex());
-        Assert.assertEquals(IndexType.PROGRAMMER.name(), response.getType());
+    @Override
+    public void tearDown() {
+        indexService.deleteIndex(Indexes.EMPLOYEE);
+        super.tearDown();
     }
 }
