@@ -36,11 +36,19 @@ public class ClusterService {
         }
     }
 
-    public boolean closeAutoCreateIndexFunction() {
+    public boolean closeAutoCreateIndex() {
+        return enableAutoCreateIndex(false);
+    }
+
+    public boolean openAutoCreateIndex() {
+        return enableAutoCreateIndex(true);
+    }
+
+    private boolean enableAutoCreateIndex(boolean enable) {
         try (TransportClient client = new PreBuiltTransportClient(setting.getSettings()).addTransportAddress(setting.getAddress())) {
-            Settings.Builder autoCreateIndex = Settings.builder().put("action.auto_create_index", false);
+            Settings.Builder autoCreateIndex = Settings.builder().put("action.auto_create_index", enable);
             ClusterUpdateSettingsResponse result = client.admin().cluster().prepareUpdateSettings().setPersistentSettings(autoCreateIndex).get();
-            return result.getPersistentSettings().getAsBoolean("action.auto_create_index", true);
+            return result.getPersistentSettings().getAsBoolean("action.auto_create_index", !enable);
         }
     }
 }

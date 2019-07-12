@@ -4,10 +4,12 @@ import java.util.Objects;
 
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.Nullable;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,14 @@ public class DocumentService {
 
     @Autowired
     private ClientSetting setting;
+
+    public IndexResponse createOrUpdateDocument(String index, IndexType type, String jsonObject) {
+        try (TransportClient client = new PreBuiltTransportClient(setting.getSettings())
+            .addTransportAddress(setting.getAddress())) {
+            return client.prepareIndex(index, Objects.isNull(type) ? null : type.name())
+                .setSource(jsonObject, XContentType.JSON).get();
+        }
+    }
 
     public GetResponse getDocument(String index, @Nullable IndexType type, String docId) {
         try (TransportClient client = new PreBuiltTransportClient(setting.getSettings())

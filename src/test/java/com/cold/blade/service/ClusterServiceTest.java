@@ -16,6 +16,11 @@ public class ClusterServiceTest extends BaseTest {
 
     @Test
     public void testCloseAutoCreateIndex() {
-        Assert.assertFalse(clusterService.closeAutoCreateIndexFunction());
+        Assert.assertFalse(clusterService.closeAutoCreateIndex());
+    }
+
+    @Test
+    public void testOpenAutoCreateIndex() {
+        Assert.assertTrue(clusterService.openAutoCreateIndex());
     }
 }
